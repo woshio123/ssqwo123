@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>小铁船海鲜甄选商城 - 管理后台</title>
+  <link rel="stylesheet" href="/admin/css/admin.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+</head>
+<body>
+  <!-- 登录页面 -->
+  <div class="login-page" id="loginPage">
+    <div class="login-box">
+      <div class="login-header">
+        <i class="bi bi-anchor"></i>
+        <h1>小铁船海鲜甄选商城</h1>
+        <p>管理后台</p>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label><i class="bi bi-person"></i> 用户名</label>
+          <input type="text" id="loginUser" placeholder="请输入用户名" required>
+        </div>
+        <div class="form-group">
+          <label><i class="bi bi-lock"></i> 密码</label>
+          <input type="password" id="loginPass" placeholder="请输入密码" required>
+        </div>
+        <div class="login-msg" id="loginMsg"></div>
+        <button type="submit" class="btn-login">登 录</button>
+      </form>
+      <div class="login-footer">
+        <p>默认账号: admin / admin123</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 管理后台 -->
+  <div class="admin-page" id="adminPage" style="display:none">
+    <!-- 左侧边栏 -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <i class="bi bi-anchor"></i>
+        <span>小铁船海鲜</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-item active" data-tab="dashboard">
+          <i class="bi bi-speedometer2"></i>
+          <span>仪表盘</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="orders">
+          <i class="bi bi-bag"></i>
+          <span>订单管理</span>
+          <span class="badge" id="badge-pending" style="display:none">0</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="products">
+          <i class="bi bi-box-seam"></i>
+          <span>商品管理</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="settings">
+          <i class="bi bi-gear"></i>
+          <span>系统设置</span>
+        </a>
+        <a href="#" class="nav-item" data-tab="account">
+          <i class="bi bi-person-circle"></i>
+          <span>账号设置</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="/" target="_blank">
+          <i class="bi bi-box-arrow-up-right"></i>
+          <span>查看店铺</span>
+        </a>
+        <a href="#" onclick="logout()">
+          <i class="bi bi-box-arrow-left"></i>
+          <span>退出登录</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <!-- 顶部栏 -->
+      <header class="topbar">
+        <button class="toggle-sidebar" onclick="toggleSidebar()">
+          <i class="bi bi-list"></i>
+        </button>
+        <div class="topbar-title">
+          <span id="currentTabTitle">仪表盘</span>
+        </div>
+        <div class="topbar-actions">
+          <span class="current-time" id="currentTime"></span>
+        </div>
+      </header>
+
+      <!-- 仪表盘 -->
+      <div class="tab-content" id="tab-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#e3f2fd;color:#1976d2">
+              <i class="bi bi-cart3"></i>
+            </div>
+            <div class="stat-info">
+              <p class="stat-label">今日订单</p>
+              <p class="stat-value" id="stat-today-orders">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#f3e5f5;color:#7b1fa2">
+              <i class="bi bi-currency-yen"></i>
+            </div>
+            <div class="stat-info">
+              <p class="stat-label">今日收入</p>
+              <p class="stat-value">¥<span id="stat-today-revenue">0</span></p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fff3e0;color:#f57c00">
+              <i class="bi bi-hourglass-split"></i>
+            </div>
+            <div class="stat-info">
+              <p class="stat-label">待付款</p>
+              <p class="stat-value" id="stat-pending-orders">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#e3f2fd;color:#1976d2">
+              <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="stat-info">
+              <p class="stat-label">待发货</p>
+              <p class="stat-value" id="stat-toship-orders">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#e8f5e9;color:#388e3c">
+              <i class="bi bi-truck"></i>
+            </div>
+            <div class="stat-info">
+              <p class="stat-label">已发货</p>
+              <p class="stat-value" id="stat-shipped-orders">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#e8f5e9;color:#388e3c">
+              <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-info">
+              <p class="stat-label">已完成</p>
+              <p class="stat-value" id="stat-completed-orders">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fce4ec;color:#c2185b">
+              <i class="bi bi-box"></i>
+            </div>
+            <div class="stat-info">
+              <p class="stat-label">商品总数</p>
+              <p class="stat-value" id="stat-products">0</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#e0f2f1;color:#00796b">
+              <i class="bi bi-wallet2"></i>
+            </div>
+            <div class="stat-info">
+              <p class="stat-label">总收入</p>
+              <p class="stat-value">¥<span id="stat-total-revenue">0</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 订单管理 -->
+      <div class="tab-content" id="tab-orders" style="display:none">
+        <div class="tab-header">
+          <h3><i class="bi bi-bag"></i> 订单管理</h3>
+          <div class="tab-actions">
+            <div class="filter-tabs">
+              <button class="filter-tab active" data-status="">全部</button>
+              <button class="filter-tab" data-status="pending">待付款</button>
+              <button class="filter-tab" data-status="paid">已付款</button>
+              <button class="filter-tab" data-status="shipped">已发货</button>
+              <button class="filter-tab" data-status="completed">已完成</button>
+              <button class="filter-tab" data-status="cancelled">已取消</button>
+            </div>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table" id="ordersTable">
+            <thead>
+              <tr>
+                <th>订单号</th>
+                <th>商品</th>
+                <th>金额</th>
+                <th>状态</th>
+                <th>下单时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <tr><td colspan="6" class="text-center text-muted py-5">加载中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="ordersPagination"></div>
+      </div>
+
+      <!-- 商品管理 -->
+      <div class="tab-content" id="tab-products" style="display:none">
+        <div class="tab-header">
+          <h3><i class="bi bi-box-seam"></i> 商品管理</h3>
+          <div class="tab-actions">
+            <button class="btn btn-primary" onclick="openProductModal()">
+              <i class="bi bi-plus"></i> 添加商品
+            </button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table" id="productsTable">
+            <thead>
+              <tr>
+                <th>图片</th>
+                <th>商品名称</th>
+                <th>价格</th>
+                <th>规格</th>
+                <th>库存</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="productsTableBody">
+              <tr><td colspan="7" class="text-center text-muted py-5">加载中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 系统设置 -->
+      <div class="tab-content" id="tab-settings" style="display:none">
+        <div class="tab-header">
+          <h3><i class="bi bi-gear"></i> 系统设置</h3>
+        </div>
+        <div class="settings-container">
+          <form id="settingsForm">
+            <div class="settings-section">
+              <h4>基本信息</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>店铺名称</label>
+                  <input type="text" name="shop_name" placeholder="请输入店铺名称">
+                </div>
+                <div class="form-group">
+                  <label>联系电话</label>
+                  <input type="text" name="contact_phone" placeholder="请输入联系电话">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>微信账号</label>
+                  <input type="text" name="contact_wechat" placeholder="请输入微信号">
+                </div>
+                <div class="form-group">
+                  <label>店铺地址</label>
+                  <input type="text" name="address" placeholder="请输入店铺地址">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>营业时间</label>
+                  <input type="text" name="business_hours" placeholder="例如: 8:00-20:00">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>店铺公告</label>
+                <textarea name="announcement" rows="3" placeholder="店铺公告内容"></textarea>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h4>收款设置</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>支付宝收款码</label>
+                  <div class="upload-box" id="alipayQrBox">
+                    <input type="hidden" name="alipay_qr" id="alipayQrInput">
+                    <div class="upload-placeholder" onclick="openUpload('alipay')">
+                      <i class="bi bi-cloud-arrow-up"></i>
+                      <p>点击上传</p>
+                    </div>
+                    <div class="upload-preview" style="display:none">
+                      <img id="alipayQrPreview" src="" alt="支付宝收款码">
+                      <button type="button" class="btn-remove-img" onclick="removeImage('alipay')">
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>微信收款码</label>
+                  <div class="upload-box" id="wechatQrBox">
+                    <input type="hidden" name="wechat_qr" id="wechatQrInput">
+                    <div class="upload-placeholder" onclick="openUpload('wechat')">
+                      <i class="bi bi-cloud-arrow-up"></i>
+                      <p>点击上传</p>
+                    </div>
+                    <div class="upload-preview" style="display:none">
+                      <img id="wechatQrPreview" src="" alt="微信收款码">
+                      <button type="button" class="btn-remove-img" onclick="removeImage('wechat')">
+                        <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check"></i> 保存设置
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- 账号设置 -->
+      <div class="tab-content" id="tab-account" style="display:none">
+        <div class="tab-header">
+          <h3><i class="bi bi-person-circle"></i> 账号设置</h3>
+        </div>
+        <div class="settings-container">
+          <form id="passwordForm">
+            <div class="settings-section">
+              <h4>修改密码</h4>
+              <div class="form-group">
+                <label>原密码</label>
+                <input type="password" name="oldPass" required placeholder="请输入原密码">
+              </div>
+              <div class="form-group">
+                <label>新密码</label>
+                <input type="password" name="newPass" required placeholder="请输入新密码">
+              </div>
+              <div class="form-group">
+                <label>确认新密码</label>
+                <input type="password" name="confirmPass" required placeholder="请再次输入新密码">
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check"></i> 修改密码
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 商品编辑弹窗 -->
+  <div class="modal" id="productModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="productModalTitle">添加商品</h5>
+          <button type="button" class="btn-close" onclick="closeProductModal()"></button>
+        </div>
+        <div class="modal-body">
+          <form id="productForm">
+            <input type="hidden" name="id" id="productId">
+            <div class="form-group">
+              <label>商品名称 <span class="required">*</span></label>
+              <input type="text" name="name" id="productName" required placeholder="请输入商品名称">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>单位</label>
+                <input type="text" name="unit" id="productUnit" placeholder="例如: 斤、盒、只">
+              </div>
+              <div class="form-group">
+                <label>库存</label>
+                <input type="number" name="stock" id="productStock" value="999" min="0">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>商品描述</label>
+              <textarea name="description" id="productDesc" rows="2" placeholder="商品描述"></textarea>
+            </div>
+            <div class="form-group">
+              <label>商品图片</label>
+              <div class="upload-box" id="productImageBox">
+                <input type="hidden" name="image" id="productImageInput">
+                <div class="upload-placeholder" onclick="openProductUpload()">
+                  <i class="bi bi-cloud-arrow-up"></i>
+                  <p>点击上传商品图片</p>
+                </div>
+                <div class="upload-preview" style="display:none" onclick="openProductUpload()">
+                  <img id="productImagePreview" src="" alt="商品图片">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>规格设置</label>
+              <div class="specs-editor" id="specsEditor">
+                <div class="spec-row">
+                  <input type="text" name="specName[]" placeholder="规格名称 (如: 小份)">
+                  <input type="number" name="specPrice[]" placeholder="价格" step="0.01">
+                  <input type="number" name="specQty[]" placeholder="数量">
+                  <select name="specUnit[]">
+                    <option value="斤">斤</option>
+                    <option value="盒">盒</option>
+                    <option value="只">只</option>
+                    <option value="份">份</option>
+                    <option value="个">个</option>
+                    <option value="头">头</option>
+                  </select>
+                  <button type="button" class="btn-remove-spec" onclick="removeSpecRow(this)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="addSpecRow()">
+                <i class="bi bi-plus"></i> 添加规格
+              </button>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" name="is_featured" id="productFeatured"> 设为推荐
+                </label>
+              </div>
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" name="active" id="productActive" checked> 上架销售
+                </label>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeProductModal()">取消</button>
+          <button type="button" class="btn btn-primary" onclick="saveProduct()">
+            <i class="bi bi-check"></i> 保存
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 订单详情弹窗 -->
+  <div class="modal" id="orderDetailModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">订单详情</h5>
+          <button type="button" class="btn-close" onclick="closeOrderDetailModal()"></button>
+        </div>
+        <div class="modal-body" id="orderDetailBody">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 发货弹窗 -->
+  <div class="modal" id="shipModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">订单发货</h5>
+          <button type="button" class="btn-close" onclick="closeShipModal()"></button>
+        </div>
+        <div class="modal-body">
+          <form id="shipForm">
+            <input type="hidden" name="orderId" id="shipOrderId">
+            <div class="form-group">
+              <label>快递公司</label>
+              <select name="logisticsCompany" id="shipCompanySelect" class="form-select" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
+                <option value="">请选择快递公司</option>
+                <option value="顺丰速运">顺丰速运</option>
+                <option value="中通快递">中通快递</option>
+                <option value="圆通速递">圆通速递</option>
+                <option value="韵达快递">韵达快递</option>
+                <option value="申通快递">申通快递</option>
+                <option value="京东物流">京东物流</option>
+                <option value="EMS">EMS</option>
+                <option value="极兔快递">极兔快递</option>
+                <option value="邮政快递">邮政快递</option>
+                <option value="德邦快递">德邦快递</option>
+                <option value="跨越速运">跨越速运</option>
+                <option value="安能物流">安能物流</option>
+                <option value="中铁快运">中铁快运</option>
+                <option value="天天快递">天天快递</option>
+                <option value="百世快递">百世快递</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>运单号</label>
+              <input type="text" name="logisticsNo" id="shipTrackingNo" placeholder="请输入运单号" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeShipModal()">取消</button>
+          <button type="button" class="btn btn-primary" onclick="confirmShip()">
+            <i class="bi bi-truck"></i> 确认发货
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 物流查询弹窗 -->
+  <div class="modal" id="trackingModal">
+    <div class="modal-dialog" style="max-width:600px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">物流追踪查询</h5>
+          <button type="button" class="btn-close" onclick="closeTrackingModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="tracking-info" style="background:#f8f9fa;padding:15px;border-radius:8px;margin-bottom:20px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+              <span>快递公司：<strong id="trackingCompany">-</strong></span>
+              <span>运单号：<strong id="trackingNo">-</strong></span>
+            </div>
+            <div>订单号：<span id="trackingOrderId">-</span></div>
+          </div>
+          <div class="tracking-timeline" id="trackingTimeline" style="max-height:400px;overflow-y:auto;">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeTrackingModal()">关闭</button>
+          <button type="button" class="btn btn-primary" onclick="refreshTracking()">
+            <i class="bi bi-arrow-clockwise"></i> 刷新
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 文件上传弹窗 -->
+  <div class="modal" id="uploadModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">上传图片</h5>
+          <button type="button" class="btn-close" onclick="closeUploadModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="upload-area" id="uploadArea">
+            <input type="file" id="fileInput" accept="image/*" style="display:none">
+            <i class="bi bi-cloud-arrow-up"></i>
+            <p>点击或拖拽图片到此处上传</p>
+            <small>支持 jpg、png、gif、webp 格式</small>
+          </div>
+          <div class="upload-progress" id="uploadProgress" style="display:none">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p id="uploadStatus">上传中...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/admin/js/admin.js"></script>
+</body>
+</html>

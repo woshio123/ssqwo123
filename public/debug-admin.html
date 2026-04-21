@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head><title>Admin API Debug</title></head>
+<body>
+<h3>Admin API 调试</h3>
+<pre id="log"></pre>
+<script>
+const log = document.getElementById('log');
+function addLog(msg) { log.textContent += msg + '\n'; }
+
+async function test() {
+    // 1. Login
+    addLog('1. 正在登录...');
+    try {
+        const loginRes = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username:'admin', password:'admin123'})
+        });
+        const loginData = await loginRes.json();
+        addLog('Login response: ' + JSON.stringify(loginData));
+        const token = loginData.token;
+        
+        // 2. Get products
+        addLog('2. 正在获取商品列表...');
+        const prodRes = await fetch('/api/admin/products', {
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/json'
+            }
+        });
+        addLog('Products status: ' + prodRes.status);
+        const products = await prodRes.json();
+        addLog('Products count: ' + products.length);
+        addLog('Products: ' + JSON.stringify(products, null, 2));
+        
+        // 3. Get stats
+        addLog('3. 正在获取统计数据...');
+        const statsRes = await fetch('/api/admin/stats', {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        });
+        const stats = await statsRes.json();
+        addLog('Stats: ' + JSON.stringify(stats, null, 2));
+    } catch(e) {
+        addLog('ERROR: ' + e.message);
+    }
+}
+test();
+</script>
+</body>
+</html>
