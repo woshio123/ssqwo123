@@ -680,11 +680,6 @@ async function editProduct(id) {
 
     // 规格
     const specs = parseSpecs(product.specs);
-    console.log('【DEBUG】原始 product.specs:', product.specs);
-    console.log('【DEBUG】解析后 specs:', specs);
-    // 调试弹窗：显示加载到的原始数据
-    alert(`加载到的数据：\n名称：${product.name}\n规格原始值：${product.specs}\n解析后规格数：${specs.length}\n\n如果规格数为0但原始值不为空，说明parseSpecs有问题。`);
-    
     const editor = document.getElementById('specsEditor');
     editor.innerHTML = '';
 
@@ -693,6 +688,9 @@ async function editProduct(id) {
     } else {
       addSpecRow();
     }
+
+    // 关键：设置 editingProductId，这样保存时会用 PUT 而不是 POST
+    editingProductId = id;
 
     // 直接显示弹窗，不再调用 openProductModal（否则会清空规格数据）
     document.getElementById('productModal').classList.add('show');
