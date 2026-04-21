@@ -255,6 +255,12 @@ function selectDetailSpec(index, el) {
   document.querySelectorAll('.detail-specs .spec-item').forEach((item, i) => {
     item.classList.toggle('active', i === index);
   });
+  // 更新详情弹窗中的红色价格
+  const specs = parseSpecs(currentProduct);
+  if (specs.length > 0) {
+    const priceEl = document.querySelector('.detail-price .current-price');
+    if (priceEl) priceEl.textContent = `¥${specs[index].price}`;
+  }
 }
 
 function switchDetailImage(img) {
