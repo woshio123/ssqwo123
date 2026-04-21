@@ -18,6 +18,6 @@ server/deep_*
 server/find_*
 server/convert_*
 server/detect_*
-*.js
 *.ps1
 *.py
+
