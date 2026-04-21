@@ -689,7 +689,8 @@ async function editProduct(id) {
       addSpecRow();
     }
 
-    openProductModal(id);
+    // 直接显示弹窗，不再调用 openProductModal（否则会清空规格数据）
+    document.getElementById('productModal').classList.add('show');
   } catch (e) {
     showToast('加载商品失败', 'error');
   }
