@@ -116,7 +116,19 @@ function initDatabase() {
   console.log('✅ 数据库初始化完成');
 }
 
+// 自动迁移：补全缺失的列
+function runMigrations() {
+  const cols = db.prepare('PRAGMA table_info(orders)').all().map(c => c.name);
+  if (!cols.includes('trackingPhone')) {
+    try { db.exec('ALTER TABLE orders ADD COLUMN trackingPhone TEXT'); console.log('✅ 已添加 trackingPhone 列'); } catch(e) {}
+  }
+  if (!cols.includes('shippedAt')) {
+    try { db.exec('ALTER TABLE orders ADD COLUMN shippedAt TEXT'); } catch(e) {}
+  }
+}
+
 initDatabase();
+runMigrations();
 
 // ==================== 辅助函数 ====================
 
