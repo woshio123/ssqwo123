@@ -221,7 +221,7 @@ async function openProductModal(productId) {
             <div class="spec-list">
               ${specs.map((spec, i) => `
                 <span class="spec-item ${i === 0 ? 'active' : ''}" data-index="${i}" onclick="selectDetailSpec(${i}, this)">
-                  ${spec.name || spec.spec || `${spec.qty || 1}${spec.unit || '份'}`} ¥${spec.price}
+                  ${spec.name || spec.sku || spec.spec || `${spec.qty || 1}${spec.unit || '份'}`} ¥${spec.price}
                 </span>
               `).join('')}
             </div>
@@ -302,7 +302,7 @@ async function openBuyModal(productId) {
     specSection.style.display = 'block';
     specOptions.innerHTML = specs.map((spec, i) => `
       <div class="spec-option ${i === 0 ? 'active' : ''}" data-index="${i}" onclick="selectSpec(${i})">
-        <span class="spec-name">${spec.name || spec.spec || `${spec.qty || 1}${spec.unit || '份'}`}</span>
+        <span class="spec-name">${spec.name || spec.sku || spec.spec || `${spec.qty || 1}${spec.unit || '份'}`}</span>
         <span class="spec-price">¥${spec.price}</span>
       </div>
     `).join('');
@@ -351,7 +351,7 @@ function getSelectedSpec() {
   if (currentSpecIndex >= 0 && specs.length > 0) {
     const spec = specs[currentSpecIndex];
     return {
-      name: spec.name || spec.spec || `${spec.qty || 1}${spec.unit || '份'}`,
+      name: spec.name || spec.sku || spec.spec || `${spec.qty || 1}${spec.unit || '份'}`,
       price: spec.price,
       qty: spec.qty || 1,
       unit: spec.unit || '份'

@@ -712,7 +712,7 @@ function addSpecRow(spec = {}) {
   const row = document.createElement('div');
   row.className = 'spec-row';
   row.innerHTML = `
-    <input type="text" name="specName[]" placeholder="规格名称" value="${spec.name || spec.spec || ''}">
+    <input type="text" name="specName[]" placeholder="规格名称" value="${spec.name || spec.sku || spec.spec || ''}">
     <input type="number" name="specPrice[]" placeholder="价格" step="0.01" value="${spec.price || ''}">
     <input type="number" name="specQty[]" placeholder="数量" value="${spec.qty || ''}">
     <select name="specUnit[]">
