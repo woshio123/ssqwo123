@@ -79,6 +79,7 @@ async function loadShopInfo() {
     const info = await res.json();
 
     document.title = info.name || '小铁船海鲜甄选商城';
+    document.getElementById('shopName').textContent = info.name || '小铁船海鲜';
     document.getElementById('headerPhone').textContent = info.phone || '';
     document.getElementById('footerPhone').textContent = info.phone || '';
     document.getElementById('footerWechat').textContent = info.wechat || '';
