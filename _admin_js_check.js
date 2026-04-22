@@ -678,11 +678,10 @@ async function editProduct(id) {
     document.getElementById('productActive').checked = product.active;
     document.getElementById('productFeatured').checked = product.is_featured;
 
-    // 图片 - 兼容 image 和 images[0]
-    const imageUrl = product.image || (product.images && product.images[0]) || '';
-    if (imageUrl) {
-      document.getElementById('productImageInput').value = imageUrl;
-      document.getElementById('productImagePreview').src = imageUrl;
+    // 图片
+    if (product.image) {
+      document.getElementById('productImageInput').value = product.image;
+      document.getElementById('productImagePreview').src = product.image;
       document.querySelector('#productImageBox .upload-preview').style.display = 'flex';
       document.querySelector('#productImageBox .upload-placeholder').style.display = 'none';
     }
@@ -693,11 +692,7 @@ async function editProduct(id) {
     editor.innerHTML = '';
 
     if (specs.length > 0) {
-      console.log('Loading specs:', JSON.stringify(specs));
-      specs.forEach((spec, i) => {
-        console.log(`Spec[${i}]:`, spec);
-        addSpecRow(spec);
-      });
+      specs.forEach(spec => addSpecRow(spec));
     } else {
       addSpecRow();
     }
