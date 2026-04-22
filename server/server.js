@@ -760,21 +760,34 @@ app.get('/api/tracking', async (req, res) => {
     }
     
     // 默认使用寄件人（商家）手机号后4位
-    const trackingPhone = '1103';
+    // 手机号优先级：寄件人后4位1103 → 收件人手机后4位 → 默认1103
+    const senderPhoneLast4 = '1103';
     
-    // 尝试从订单获取收货地址
+    // 尝试从订单获取收货地址和收件人手机
     let receiverAddress = '';
+    let receiverPhone = '';
     if (orderId) {
-      const order = db.prepare('SELECT receiverAddress FROM orders WHERE orderId = ?').get(orderId);
+      const order = db.prepare('SELECT receiverAddress, phone FROM orders WHERE orderId = ?').get(orderId);
       if (order) {
         receiverAddress = order.receiverAddress || '';
+        receiverPhone = order.phone || '';
+      }
+    }
+    
+    // 优先用寄件人手机后4位，读取不到则用收件人手机后4位
+    let finalPhone = senderPhoneLast4;
+    if (!finalPhone || finalPhone.length < 4) {
+      if (receiverPhone && receiverPhone.length >= 4) {
+        finalPhone = receiverPhone.slice(-4);
+      } else {
+        finalPhone = '1103';
       }
     }
     
     // 如果配置了快递100，优先使用真实接口
     if (KUAIDI100_CUSTOMER && KUAIDI100_KEY) {
       try {
-        const realData = await queryKuaidi100(company, no, receiverAddress, trackingPhone);
+        const realData = await queryKuaidi100(company, no, receiverAddress, finalPhone);
         if (realData) {
           return res.json({
             success: true,

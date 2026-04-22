@@ -406,16 +406,24 @@ async function confirmShip() {
   const logisticsCompany = document.querySelector('#shipForm [name="logisticsCompany"]').value;
   const logisticsNo = document.querySelector('#shipForm [name="logisticsNo"]').value;
 
+  if (!logisticsCompany) { showToast('请选择快递公司', 'warning'); return; }
+  if (!logisticsNo) { showToast('请输入运单号', 'warning'); return; }
+
   try {
-    await fetch(`${API}/api/admin/orders/${orderId}/ship`, {
+    const res = await fetch(`${API}/api/admin/orders/${orderId}/ship`, {
       method: 'POST',
       headers: { ...authHeaders(), 'Content-Type': 'application/json' },
       body: JSON.stringify({ logisticsCompany, logisticsNo })
     });
-    showToast('发货成功', 'success');
-    closeShipModal();
-    loadOrders(currentOrderPage);
-    loadDashboard();
+    const result = await res.json();
+    if (result.success) {
+      showToast('发货成功', 'success');
+      closeShipModal();
+      loadOrders(currentOrderPage);
+      loadDashboard();
+    } else {
+      showToast(result.error || '发货失败', 'error');
+    }
   } catch (e) {
     showToast('发货失败', 'error');
   }
