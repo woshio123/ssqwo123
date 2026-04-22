@@ -692,7 +692,11 @@ async function editProduct(id) {
     editor.innerHTML = '';
 
     if (specs.length > 0) {
-      specs.forEach(spec => addSpecRow(spec));
+      console.log('Loading specs:', JSON.stringify(specs));
+      specs.forEach((spec, i) => {
+        console.log(`Spec[${i}]:`, spec);
+        addSpecRow(spec);
+      });
     } else {
       addSpecRow();
     }
