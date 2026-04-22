@@ -1089,15 +1089,21 @@ const upload = multer({
   }
 });
 
+// 图片上传改为base64直接返回，不存文件（兼容Railway临时文件系统）
 app.post('/api/admin/upload', requireAdmin, upload.single('file'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: '请选择要上传的文件' });
   }
-  res.json({ 
-    success: true, 
-    url: '/uploads/' + req.file.filename,
-    filename: req.file.filename
-  });
+  // 读取文件并转为base64
+  const buffer = fs.readFileSync(req.file.path);
+  const ext = path.extname(req.file.originalname).toLowerCase().replace('.', '');
+  const mimeMap = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp' };
+  const mime = mimeMap[ext] || 'image/jpeg';
+  const base64 = buffer.toString('base64');
+  const dataUri = `data:${mime};base64,${base64}`;
+  // 删除临时文件
+  fs.unlinkSync(req.file.path);
+  res.json({ success: true, url: dataUri });
 });
 
 // 删除上传的文件
@@ -1108,6 +1114,53 @@ app.delete('/api/admin/upload/:filename', requireAdmin, (req, res) => {
     res.json({ success: true });
   } else {
     res.status(404).json({ error: '文件不存在' });
+  }
+});
+
+// 迁移旧文件路径图片为base64（仅执行一次）
+app.post('/api/admin/migrate-images', requireAdmin, (req, res) => {
+  try {
+    const products = db.prepare("SELECT id, image, images FROM products WHERE image LIKE '/uploads/%' OR images LIKE '/uploads/%'").all();
+    let migrated = 0;
+    for (const p of products) {
+      // 主图
+      if (p.image && p.image.startsWith('/uploads/')) {
+        const localPath = path.join(__dirname, '..', 'public', p.image);
+        if (fs.existsSync(localPath)) {
+          const buffer = fs.readFileSync(localPath);
+          const ext = path.extname(p.image).toLowerCase().replace('.', '');
+          const mimeMap = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp' };
+          const mime = mimeMap[ext] || 'image/jpeg';
+          const base64 = `data:${mime};base64,${buffer.toString('base64')}`;
+          db.prepare('UPDATE products SET image = ? WHERE id = ?').run(base64, p.id);
+          migrated++;
+        }
+      }
+      // 多图
+      if (p.images && p.images.startsWith('["/uploads')) {
+        try {
+          const imgs = JSON.parse(p.images);
+          const newImgs = imgs.map(img => {
+            if (img.startsWith('/uploads/')) {
+              const localPath = path.join(__dirname, '..', 'public', img);
+              if (fs.existsSync(localPath)) {
+                const buffer = fs.readFileSync(localPath);
+                const ext = path.extname(img).toLowerCase().replace('.', '');
+                const mimeMap = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp' };
+                const mime = mimeMap[ext] || 'image/jpeg';
+                return `data:${mime};base64,${buffer.toString('base64')}`;
+              }
+            }
+            return img;
+          });
+          db.prepare('UPDATE products SET images = ? WHERE id = ?').run(JSON.stringify(newImgs), p.id);
+          migrated++;
+        } catch(e) {}
+      }
+    }
+    res.json({ success: true, migrated });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
   }
 });
 

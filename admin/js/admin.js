@@ -1041,6 +1041,23 @@ function removeImage(target) {
   document.querySelector(`#${target}QrBox .upload-placeholder`).style.display = 'flex';
 }
 
+// 图片迁移（旧文件路径→base64）
+async function migrateImages() {
+  if (!confirm('确认迁移所有旧图片？迁移后图片将转为base64格式，永久保存。')) return;
+  try {
+    const res = await fetch(`${API}/api/admin/migrate-images`, { method: 'POST', headers: authHeaders() });
+    const result = await res.json();
+    if (result.success) {
+      showToast(`迁移完成，共处理 ${result.migrated} 个图片`, 'success');
+      loadProducts();
+    } else {
+      showToast(result.error || '迁移失败', 'error');
+    }
+  } catch(e) {
+    showToast('迁移失败', 'error');
+  }
+}
+
 // ==================== 工具函数 ====================
 
 function authHeaders() {
