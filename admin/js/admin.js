@@ -569,7 +569,7 @@ async function loadProducts() {
   tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-5">加载中...</td></tr>';
 
   try {
-    const res = await fetch(`${API}/api/admin/products`, authHeaders());
+    const res = await fetch(`${API}/api/admin/products`, { headers: authHeaders() });
     
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
@@ -661,7 +661,7 @@ function closeProductModal() {
 
 async function editProduct(id) {
   try {
-    const res = await fetch(`${API}/api/admin/products`, authHeaders());
+    const res = await fetch(`${API}/api/admin/products`, { headers: authHeaders() });
     const products = await res.json();
     const product = products.find(p => p.id === id);
 
