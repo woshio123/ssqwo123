@@ -141,7 +141,8 @@ function renderProductCard(product) {
     displayPrice = specs[0].price;
   }
   
-  const image = product.image || '/img/default-product.png';
+  // 处理图片：优先使用 images 数组第一张，否则用默认图
+  let image = fixImageUrl(product.images && product.images[0] ? product.images[0] : null) || '/img/default-product.png';
 
   const card = document.createElement('div');
   card.className = 'product-card';
@@ -205,8 +206,8 @@ async function openProductModal(productId) {
     <div class="product-detail">
       <div class="detail-images">
         ${images.length > 0 
-          ? images.map((img, i) => `<img src="${img}" class="${i === 0 ? 'active' : ''}" onclick="switchDetailImage(this)">`).join('')
-          : `<img src="${product.image || '/img/default-product.png'}" alt="${product.name}">`
+          ? images.map((img, i) => `<img src="${fixImageUrl(img)}" class="${i === 0 ? 'active' : ''}" onclick="switchDetailImage(this)">`).join('')
+          : `<img src="${fixImageUrl(product.images && product.images[0] ? product.images[0] : null)}" alt="${product.name}">`
         }
       </div>
       <div class="detail-info">
@@ -287,7 +288,7 @@ async function openBuyModal(productId) {
 
   // 商品信息
   document.getElementById('buyProductInfo').innerHTML = `
-    <img src="${product.image || '/img/default-product.png'}" alt="${product.name}" onerror="this.src='/img/default-product.png'">
+    <img src="${fixImageUrl(product.images && product.images[0] ? product.images[0] : null)}" alt="${product.name}" onerror="this.src='/img/default-product.png'">
     <div class="product-text">
       <h4>${product.name}</h4>
       <p class="price">¥<span id="specPrice">${displayPrice}</span></p>
@@ -380,7 +381,7 @@ function addToCart() {
   const item = {
     productId: currentProduct.id,
     name: currentProduct.name,
-    image: currentProduct.image,
+    image: currentProduct.images && currentProduct.images[0] ? currentProduct.images[0] : null,
     spec: spec.name,
     price: spec.price,
     quantity: qty
@@ -412,7 +413,7 @@ async function directBuy() {
   const item = {
     productId: currentProduct.id,
     name: currentProduct.name,
-    image: currentProduct.image,
+    image: currentProduct.images && currentProduct.images[0] ? currentProduct.images[0] : null,
     spec: spec.name,
     price: spec.price,
     quantity: qty
@@ -469,7 +470,7 @@ function renderCart() {
 
   listEl.innerHTML = cart.map((item, index) => `
     <div class="cart-item">
-      <img src="${item.image || '/img/default-product.png'}" alt="${item.name}" onerror="this.src='/img/default-product.png'">
+      <img src="${fixImageUrl(item.image)}" alt="${item.name}" onerror="this.src='/img/default-product.png'">
       <div class="cart-item-info">
         <h4>${item.name}</h4>
         <p class="cart-item-spec">${item.spec}</p>
@@ -523,7 +524,7 @@ function goCheckout() {
   const itemsEl = document.getElementById('checkoutItems');
   itemsEl.innerHTML = cart.map(item => `
     <div class="checkout-item">
-      <img src="${item.image || '/img/default-product.png'}" alt="${item.name}">
+      <img src="${fixImageUrl(item.image)}" alt="${item.name}">
       <div class="checkout-item-info">
         <h4>${item.name}</h4>
         <p>${item.spec} × ${item.quantity}</p>
@@ -1097,6 +1098,16 @@ function refreshTracking() {
 }
 
 // ==================== 工具函数 ====================
+
+// 处理base64图片，添加data URL前缀
+function fixImageUrl(img) {
+  if (!img) return '/img/default-product.png';
+  if (img.startsWith('data:')) return img;  // 已经是data URL
+  if (img.startsWith('http')) return img;   // 已经是完整URL
+  if (img.startsWith('/9j/')) return 'data:image/jpeg;base64,' + img;  // JPEG base64
+  if (img.startsWith('iVBORw0KGgo')) return 'data:image/png;base64,' + img;  // PNG base64
+  return img;
+}
 
 function showToast(message, type = 'info') {
   const container = document.getElementById('toastContainer');
