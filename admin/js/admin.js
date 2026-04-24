@@ -779,7 +779,7 @@ async function saveProduct() {
   const price = specs.length > 0 ? specs[0].price : 0;
 
   try {
-    const data = { name, unit, stock, description, image, active, is_featured, specs, price };
+    const data = { name, unit, stock, description, image, images: image ? [image] : [], active, is_featured, specs, price };
 
     let url = `${API}/api/admin/products`;
     let method = 'POST';
